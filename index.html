@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agenda</title>
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-info">
+                <h1 class="date-title">Agenda</h1>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="icon-btn">
+                    <i class="ri-moon-line"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Calendar Section -->
+        <section class="calendar-section">
+            <div class="calendar-header">
+                <button id="prevMonthBtn" class="icon-btn-small"><i class="ri-arrow-left-s-line"></i></button>
+                <h2 id="currentMonthYear">Mayo 2026</h2>
+                <button id="nextMonthBtn" class="icon-btn-small"><i class="ri-arrow-right-s-line"></i></button>
+            </div>
+            <div class="calendar-weekdays">
+                <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+            </div>
+            <div id="calendarGrid" class="calendar-grid">
+                <!-- Days will be injected here via JS -->
+            </div>
+        </section>
+
+        <main class="task-list-container">
+            <div class="task-list-header">
+                <h3 id="selectedDateTitle">Hoy</h3>
+                <span class="task-count" id="taskCount">0 tareas</span>
+            </div>
+
+            <ul id="taskList" class="task-list">
+                <!-- Tasks will be injected here via JS -->
+            </ul>
+            
+            <div id="emptyState" class="empty-state">
+                <i class="ri-file-list-3-line"></i>
+                <p>No hay tareas para este día.</p>
+                <span>Toca el botón + para agregar una.</span>
+            </div>
+        </main>
+
+        <!-- Floating Action Button -->
+        <button id="fab" class="fab-button">
+            <i class="ri-add-line"></i>
+        </button>
+
+        <!-- Add Task Modal -->
+        <div id="addTaskModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Nueva Tarea</h2>
+                    <button id="closeModal" class="icon-btn"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-wrapper">
+                        <input type="text" id="taskInput" placeholder="Escribe tu tarea aquí..." autocomplete="off">
+                        <button id="micBtn" class="mic-btn" aria-label="Hablar tarea">
+                            <i class="ri-mic-line"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveTaskBtn" class="primary-btn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
