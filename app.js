@@ -11,10 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedDateStr = formatDate(currentDate); // YYYY-MM-DD
 
     // --- DOM Elements ---
-    const taskList = document.getElementById('taskList');
-    const emptyState = document.getElementById('emptyState');
-    const taskCount = document.getElementById('taskCount');
-    const selectedDateTitle = document.getElementById('selectedDateTitle');
     const themeToggle = document.getElementById('themeToggle');
     
     // Calendar DOM
@@ -35,8 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     migrateOldTasks();
     initTheme();
     renderCalendar();
-    updateDateTitle();
-    renderTasks();
     
     // Request Weather
     fetchWeather();
@@ -364,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.calendar-day.selected').forEach(el => el.classList.remove('selected'));
                 dayDiv.classList.add('selected');
                 selectedDateStr = thisDateStr;
-                updateDateTitle();
                 // We don't call renderTasks() anymore as the list is gone
             });
 
@@ -372,17 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateDateTitle() {
-        const todayStr = formatDate(new Date());
-        if (selectedDateStr === todayStr) {
-            selectedDateTitle.textContent = "Hoy";
-        } else {
-            const dateObj = new Date(selectedDateStr + 'T00:00:00'); // Prevent timezone shift
-            const options = { weekday: 'long', month: 'long', day: 'numeric' };
-            let dateStr = dateObj.toLocaleDateString('es-ES', options);
-            selectedDateTitle.textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-        }
-    }
+
 
     // --- Task Logic ---
     function openModal() {
@@ -412,16 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (changed) saveTasksToStorage();
     }
 
-    function updateCount(dayTasks) {
-        const pending = dayTasks.filter(t => !t.completed).length;
-        if (dayTasks.length === 0) {
-            taskCount.textContent = 'Sin tareas';
-            emptyState.classList.remove('hidden');
-        } else {
-            taskCount.textContent = `${pending} tarea${pending !== 1 ? 's' : ''} pendiente${pending !== 1 ? 's' : ''}`;
-            emptyState.classList.add('hidden');
-        }
-    }
+
 
     function addTask() {
         const text = taskInput.value.trim();
@@ -438,7 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tasks.unshift(newTask);
         saveTasksToStorage();
         
-        renderTasks();
         closeModal();
     }
 
@@ -447,7 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (task) {
             task.completed = !task.completed;
             saveTasksToStorage();
-            renderTasks();
         }
     }
 
@@ -457,51 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             tasks = tasks.filter(t => t.id !== id);
             saveTasksToStorage();
-            renderTasks();
         }, 300);
     }
 
-    function renderTasks() {
-        taskList.innerHTML = '';
-        const dayTasks = getTasksForDate(selectedDateStr);
-        
-        const sortedTasks = [...dayTasks].sort((a, b) => {
-            if (a.completed === b.completed) {
-                return new Date(b.createdAt) - new Date(a.createdAt);
-            }
-            return a.completed ? 1 : -1;
-        });
 
-        sortedTasks.forEach(task => {
-            const li = document.createElement('li');
-            li.className = `task-item ${task.completed ? 'completed' : ''}`;
-            li.dataset.id = task.id;
-
-            li.innerHTML = `
-                <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-                <span class="task-text">${escapeHTML(task.text)}</span>
-                <button class="delete-btn" aria-label="Eliminar tarea">
-                    <i class="ri-delete-bin-line"></i>
-                </button>
-            `;
-
-            const checkbox = li.querySelector('.task-checkbox');
-            checkbox.addEventListener('change', () => toggleTaskStatus(task.id));
-
-            const textSpan = li.querySelector('.task-text');
-            textSpan.addEventListener('click', () => toggleTaskStatus(task.id));
-
-            const deleteBtn = li.querySelector('.delete-btn');
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                deleteTask(task.id, li);
-            });
-
-            taskList.appendChild(li);
-        });
-
-        updateCount(dayTasks);
-    }
 
     function escapeHTML(str) {
         const div = document.createElement('div');
