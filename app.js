@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isListening = false;
     
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        console.log("Speech recognition supported.");
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.lang = 'es-ES'; // Spanish by default
@@ -86,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         micBtn.addEventListener('click', toggleListening);
     } else {
         // Not supported
+        console.warn("Speech recognition NOT supported in this browser.");
         micBtn.style.display = 'none';
     }
 
