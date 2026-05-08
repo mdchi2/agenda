@@ -95,7 +95,7 @@ body {
     cursor: pointer;
     padding: 0.25rem;
     border-radius: 8px;
-    display: flex;
+    display: none; /* Hidden for 2-week view */
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
@@ -139,24 +139,25 @@ body {
 
 .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
 }
 
 .calendar-day {
-    min-height: 55px;
+    min-height: 120px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
-    padding-top: 4px;
+    padding: 8px;
     font-size: 0.95rem;
     font-weight: 500;
-    border-radius: 8px;
+    border-radius: 16px;
     cursor: pointer;
     position: relative;
     transition: all 0.2s ease;
-    margin: 2px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
 }
 
 .calendar-day:not(.empty):hover {
@@ -194,13 +195,13 @@ body {
 }
 
 .weather-info {
-    margin-top: auto;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    font-size: 0.65rem;
-    line-height: 1.1;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    line-height: 1;
     color: var(--text-secondary);
+    margin-top: 2px;
 }
 
 .calendar-day.selected .weather-info {
@@ -208,8 +209,53 @@ body {
 }
 
 .weather-icon {
-    font-size: 0.9rem;
-    margin-bottom: -2px;
+    font-size: 0.75rem;
+}
+
+/* Inline Tasks in Calendar */
+.calendar-tasks {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.calendar-task {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    background-color: var(--bg-color);
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+    max-width: 100%;
+}
+
+[data-theme="dark"] .calendar-task {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.calendar-task.completed {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.calendar-day.selected .calendar-task {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.calendar-task-more {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    padding-left: 2px;
+    font-weight: 600;
+}
+
+.calendar-day.selected .calendar-task-more {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 
@@ -385,6 +431,31 @@ body {
     background-color: var(--accent-hover);
 }
 
+.fab-group {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    z-index: 100;
+}
+
+.mic-fab {
+    position: static;
+    width: 50px;
+    height: 50px;
+    background-color: var(--card-bg);
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+.mic-fab.listening {
+    background-color: var(--danger-color);
+    color: white;
+}
+
 /* Modal */
 .modal-overlay {
     position: fixed;
@@ -552,13 +623,13 @@ body {
         border-radius: 20px;
         width: 90%;
     }
-    .fab-button {
+    .fab-group {
         bottom: 2rem;
         left: 50%;
         transform: translateX(220px); 
         right: auto;
     }
     .fab-button:hover, .fab-button:active {
-        transform: translateX(220px) scale(1.05);
+        transform: scale(1.05);
     }
 }

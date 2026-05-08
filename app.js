@@ -100,6 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isListening) {
             recognition.stop();
         } else {
+            if (addTaskModal.classList.contains('hidden')) {
+                openModal();
+            }
             taskInput.focus();
             recognition.start();
         }
@@ -264,35 +267,66 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCalendar() {
         calendarGrid.innerHTML = '';
         
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        
-        // Adjust JS getDay() (0=Sun, 1=Mon) to start week on Monday (0=Mon, 6=Sun)
-        let startingDay = firstDay === 0 ? 6 : firstDay - 1;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = formatDate(today);
 
-        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        currentMonthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        currentMonthYearEl.textContent = "Próximos 14 días";
 
-        const todayStr = formatDate(new Date());
+        const dayNames = ['DO', 'LU', 'MA', 'MI', 'JU', 'VI', 'SA'];
+        const dayNamesCustom = ['DO', 'LU', 'MA', 'MI', 'JU', 'VI', 'SA']; // Match the order of getDay()
 
-        // Empty cells before start of month
-        for (let i = 0; i < startingDay; i++) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'calendar-day empty';
-            calendarGrid.appendChild(emptyDiv);
-        }
+        // Render exactly 14 days starting from today
+        for (let i = 0; i < 14; i++) {
+            const thisDate = new Date(today);
+            thisDate.setDate(today.getDate() + i);
+            const thisDateStr = formatDate(thisDate);
+            const dayNum = thisDate.getDate();
+            const dayName = dayNames[thisDate.getDay()];
 
-        // Days of the month
-        for (let i = 1; i <= daysInMonth; i++) {
             const dayDiv = document.createElement('div');
             dayDiv.className = 'calendar-day';
             
-            const thisDateStr = formatDate(new Date(currentYear, currentMonth, i));
+            // Header: Day number + Day Name + Weather
+            const headerDiv = document.createElement('div');
+            headerDiv.style.display = 'flex';
+            headerDiv.style.flexDirection = 'column';
+            headerDiv.style.gap = '2px';
+            headerDiv.style.marginBottom = '4px';
+
+            const topRow = document.createElement('div');
+            topRow.style.display = 'flex';
+            topRow.style.justifyContent = 'space-between';
+            topRow.style.alignItems = 'center';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = dayName;
+            nameSpan.style.fontSize = '0.7rem';
+            nameSpan.style.fontWeight = '700';
+            nameSpan.style.opacity = '0.7';
             
-            // Add day number
+            const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+            const monthName = monthNames[thisDate.getMonth()];
+
             const numSpan = document.createElement('span');
-            numSpan.textContent = i;
-            dayDiv.appendChild(numSpan);
+            numSpan.innerHTML = `${dayNum} <span style="font-size: 0.7rem; opacity: 0.8; margin-left: 2px;">${monthName}</span>`;
+            numSpan.style.fontSize = '1.1rem';
+            numSpan.style.fontWeight = '700';
+
+            topRow.appendChild(nameSpan);
+            topRow.appendChild(numSpan);
+            headerDiv.appendChild(topRow);
+
+            // Weather Info
+            const wData = weatherData[thisDateStr];
+            if (wData) {
+                const weatherInfo = document.createElement('div');
+                weatherInfo.className = 'weather-info';
+                weatherInfo.innerHTML = `<span class="weather-icon">${getWeatherIcon(wData.code)}</span> <span>${wData.max}° / ${wData.min}°</span>`;
+                headerDiv.appendChild(weatherInfo);
+            }
+            
+            dayDiv.appendChild(headerDiv);
 
             if (thisDateStr === todayStr) {
                 dayDiv.classList.add('today');
@@ -302,29 +336,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 dayDiv.classList.add('selected');
             }
 
-            // Weather Info
-            const wData = weatherData[thisDateStr];
-            if (wData) {
-                const weatherDiv = document.createElement('div');
-                weatherDiv.className = 'weather-info';
+            // Inline Tasks
+            const dayTasks = getTasksForDate(thisDateStr);
+            if (dayTasks.length > 0) {
+                const tasksContainer = document.createElement('div');
+                tasksContainer.className = 'calendar-tasks';
                 
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'weather-icon';
-                iconSpan.textContent = getWeatherIcon(wData.code);
-                
-                const tempSpan = document.createElement('span');
-                tempSpan.textContent = `${wData.max}°`;
-                
-                weatherDiv.appendChild(iconSpan);
-                weatherDiv.appendChild(tempSpan);
-                dayDiv.appendChild(weatherDiv);
-            }
+                // Show up to 3 tasks now that the main list is gone
+                dayTasks.slice(0, 3).forEach(task => {
+                    const taskEl = document.createElement('div');
+                    taskEl.className = 'calendar-task' + (task.completed ? ' completed' : '');
+                    taskEl.textContent = task.text;
+                    tasksContainer.appendChild(taskEl);
+                });
 
-            // Indicator dot for pending tasks
-            if (hasPendingTasks(thisDateStr)) {
-                const dot = document.createElement('div');
-                dot.className = 'task-dot';
-                dayDiv.appendChild(dot);
+                if (dayTasks.length > 3) {
+                    const moreEl = document.createElement('div');
+                    moreEl.className = 'calendar-task-more';
+                    moreEl.textContent = `+${dayTasks.length - 3} más`;
+                    tasksContainer.appendChild(moreEl);
+                }
+                
+                dayDiv.appendChild(tasksContainer);
             }
 
             dayDiv.addEventListener('click', () => {
@@ -332,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dayDiv.classList.add('selected');
                 selectedDateStr = thisDateStr;
                 updateDateTitle();
-                renderTasks();
+                // We don't call renderTasks() anymore as the list is gone
             });
 
             calendarGrid.appendChild(dayDiv);
