@@ -631,3 +631,122 @@ body {
         transform: scale(1.05);
     }
 }
+
+/* Day View Expanded Styles */
+.modal-content.full-modal {
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.header-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.day-view-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-top: 0;
+}
+
+.expanded-task-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 1rem;
+    width: 100%;
+    align-items: stretch; /* Ensure items take full width */
+}
+
+.expanded-task-item {
+    background-color: var(--bg-color);
+    padding: 1rem;
+    border-radius: 16px;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+    animation: slideIn 0.3s ease forwards;
+    border: 1px solid var(--border-color);
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.expanded-task-item .task-text {
+    font-size: 1rem;
+    word-break: break-word;
+    white-space: normal;
+    text-align: left;
+    min-width: 0;
+    display: block;
+}
+
+.expanded-task-item.completed .task-text {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.add-note-inline {
+    display: flex;
+    gap: 10px;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.add-note-inline input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.add-note-inline input:focus {
+    border-color: var(--accent-color);
+}
+
+.icon-btn-accent {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon-btn-accent:hover {
+    background-color: var(--accent-hover);
+    transform: scale(1.05);
+}
+
+.icon-btn-accent:active {
+    transform: scale(0.95);
+}
+
+[data-theme="dark"] .expanded-task-item {
+    background-color: rgba(255, 255, 255, 0.03);
+}

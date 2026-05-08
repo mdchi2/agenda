@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const micBtn = document.getElementById('micBtn');
     const saveTaskBtn = document.getElementById('saveTaskBtn');
 
+    // Day View DOM
+    const dayViewModal = document.getElementById('dayViewModal');
+    const closeDayViewBtn = document.getElementById('closeDayView');
+    const dayViewWeekday = document.getElementById('dayViewWeekday');
+    const dayViewDate = document.getElementById('dayViewDate');
+    const dayTasksList = document.getElementById('dayTasksList');
+    const dayNoteInput = document.getElementById('dayNoteInput');
+    const saveDayNoteBtn = document.getElementById('saveDayNoteBtn');
+
     // --- Initialization ---
     migrateOldTasks();
     initTheme();
@@ -50,6 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
     saveTaskBtn.addEventListener('click', addTask);
     taskInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') addTask();
+    });
+
+    // Day View Listeners
+    closeDayViewBtn.addEventListener('click', closeDayView);
+    dayViewModal.addEventListener('click', (e) => {
+        if(e.target === dayViewModal) closeDayView();
+    });
+    saveDayNoteBtn.addEventListener('click', addDayNote);
+    dayNoteInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addDayNote();
     });
 
     // Speech Recognition
@@ -363,6 +382,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // We don't call renderTasks() anymore as the list is gone
             });
 
+            dayDiv.addEventListener('dblclick', () => {
+                selectedDateStr = thisDateStr;
+                openDayView(thisDateStr);
+            });
+
             calendarGrid.appendChild(dayDiv);
         }
     }
@@ -440,5 +464,84 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    // --- Day View Logic ---
+    function openDayView(dateStr) {
+        const date = new Date(dateStr + 'T00:00:00');
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        const dateParts = date.toLocaleDateString('es-ES', options).split(' ');
+        
+        // Formato: "viernes, 8 de mayo" -> ["viernes,", "8", "de", "mayo"]
+        dayViewWeekday.textContent = dateParts[0].replace(',', '');
+        dayViewDate.textContent = dateParts.slice(1).join(' ');
+
+        renderDayTasks(dateStr);
+        dayViewModal.classList.remove('hidden');
+        setTimeout(() => dayNoteInput.focus(), 300);
+    }
+
+    function closeDayView() {
+        dayViewModal.classList.add('hidden');
+        dayNoteInput.value = '';
+    }
+
+    function renderDayTasks(dateStr) {
+        dayTasksList.innerHTML = '';
+        const dayTasks = getTasksForDate(dateStr);
+
+        if (dayTasks.length === 0) {
+            dayTasksList.innerHTML = `
+                <div class="empty-state">
+                    <i class="ri-sticky-note-line"></i>
+                    <p>No hay notas para este día</p>
+                </div>
+            `;
+            return;
+        }
+
+        dayTasks.forEach(task => {
+            const taskEl = document.createElement('div');
+            taskEl.className = 'expanded-task-item' + (task.completed ? ' completed' : '');
+            
+            taskEl.innerHTML = `
+                <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                <span class="task-text">${escapeHTML(task.text)}</span>
+                <button class="delete-btn"><i class="ri-delete-bin-line"></i></button>
+            `;
+
+            const checkbox = taskEl.querySelector('.task-checkbox');
+            checkbox.addEventListener('change', () => {
+                toggleTaskStatus(task.id);
+                renderDayTasks(dateStr);
+            });
+
+            const delBtn = taskEl.querySelector('.delete-btn');
+            delBtn.addEventListener('click', () => {
+                deleteTask(task.id, taskEl);
+                setTimeout(() => renderDayTasks(dateStr), 350);
+            });
+
+            dayTasksList.appendChild(taskEl);
+        });
+    }
+
+    function addDayNote() {
+        const text = dayNoteInput.value.trim();
+        if (!text) return;
+
+        const newTask = {
+            id: Date.now().toString(),
+            text: text,
+            completed: false,
+            date: selectedDateStr,
+            createdAt: new Date().toISOString()
+        };
+
+        tasks.unshift(newTask);
+        saveTasksToStorage();
+        
+        dayNoteInput.value = '';
+        renderDayTasks(selectedDateStr);
     }
 });

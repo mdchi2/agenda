@@ -71,6 +71,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Day View Modal (Expanded) -->
+        <div id="dayViewModal" class="modal-overlay hidden">
+            <div class="modal-content full-modal">
+                <div class="modal-header">
+                    <div class="header-titles">
+                        <span id="dayViewWeekday" class="subtitle">Viernes</span>
+                        <h2 id="dayViewDate">8 de Mayo</h2>
+                    </div>
+                    <button id="closeDayView" class="icon-btn"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="modal-body day-view-body">
+                    <div id="dayTasksList" class="expanded-task-list">
+                        <!-- Tasks will be injected here -->
+                    </div>
+                    
+                    <div class="add-note-inline">
+                        <input type="text" id="dayNoteInput" placeholder="Añadir una nota..." autocomplete="off">
+                        <button id="saveDayNoteBtn" class="icon-btn-accent"><i class="ri-add-line"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>
